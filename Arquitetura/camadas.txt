@@ -1,0 +1,35 @@
+A arquitetura do Android pode ser dividida entre camadas:
+
+	Applications
+Aplicativos que são instalados no dispositivo. No caso de um Pentest, é onde analisamos as falhas de lógica, exposição de dados sensíveis e componentes mal configurados.
+Cada aplicativo roda em sua própria Sandbox, isolando os processos a nível do kernel.
+Exemplos:
+Home, Contatos, Telefone, Browser, Email, etc.
+
+	Application Framework
+Camada de APIs de nível mais alto usadas pelos desenvolvedores para o funcionamento das aplicações. São comandadas pela bibliotecas nativas do Android.
+Nessa camada, um pentester pode tentar "forçar" a abertura de uma Activity que deveria estar protegida.
+O Content Provider gerencia o acesso a dados estruturados. Se estiverem mal configurados, um aplicativo malicioso pode ler o banco de dados de outro app.
+Exemplos:
+Activity Manager, Package Manager, Window Manager, Content Providers, View System, Telephony Manager, etc.
+
+	Libraries
+Oferecem as funcionalidades essenciais do sistema e dos aplicativos
+Exemplos:
+Surface Manager, OpenGL | ES, SGL, SSL, SQLite, Media Framework, FreeType, WebKit, libc
+
+	Android Runtime
+ART: melhorou a eficiência e desempenho do dispositivo. Usava o ahead-of-time, que compila o aplicativo e armazena esse código compilado na instalação, reduzindo a sobrecarga.
+Dalvik VM: utilizava o modelo just-in-time, compilando o aplicativo a cada vez que ele é executado. Pode sobrecarregar o sistema por precisar compilar toda vez.
+Exemplos:
+Core Libraries, Dalvik Virtual Machine
+
+	Hardware Abstraction Layer
+É a camada que "traduz" as chamadas de API para o kernel. Ela é útil para que os desenvolvedores não precisassem criar um código diferente para cada marca de dispositivo, já que o HAL converte todas as chamadas em funções "genéricas", conversando com o kernel de forma segura.
+Em Pentest, pode ser alvo de escalação de privilégio, visto que os módulos do HAL são escritos em C/C++, sendo suscetíveis a Buffer Overflow
+
+	Kernel
+Liga o hardware ao software, gerenciando os componentes e fornecendo a comunicação.
+O Android usa um kernel Linux modificado
+Exemplos:
+Drivers.
