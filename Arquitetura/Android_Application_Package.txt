@@ -1,0 +1,11 @@
+Formato de arquivo utilizado usado na instalação de aplicativos Android (apk).
+Reúne os recursos, código compilado e metadados necessários para a instalação do aplicativo em um arquivo compactado.
+
+Estrutura:
+META-INF/: guarda arquivos de assinatura para garantir a integridade e autenticidade do aplicativo. Impede que alguém altere o aplicativo e reinstale sem que o sistema perceba.
+lib/: bibliotecas nativas compiladas para cada arquitetura de processador. 
+res/: guarda recursos que não foram compilados.
+assets/: Arquivos acessados por meio do AssetManager.
+classex.dex: possuem o bytecode compilado para Dalvik VM ou ART. No Pentest, é utlizado para engenharia reversa com jadx ou dex2jar.
+AndroidManifest.xml: Informa ao sistema toda a estrutura do aplicativo. Para um pentester, é essencial verificar permissões descritas aqui, além de observar outras possibilidades e brechas de segurança na estrutura do aplicativo
+resources.arsc: recursos compilados para otimizar o acesso pelo aplicativo.
