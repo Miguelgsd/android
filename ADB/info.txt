@@ -1,0 +1,29 @@
+O Android Debug Bridge (ADB) é uma ferramenta frequentemente utilizada para controles de dispositivos Android. Pode ser usado em Linux, Windows ou MacOS.
+Há diferentes possibilidades de utilização, como
+	Um dispositivo Android físico;
+	Um emulador de Android.
+
+Caso escolha usar um dispositivo físico:
+	1. Vá até as opções de desenvolvedor do smartphone e ative a Depuração USB;
+	2. Conecte o dispositivo ao computador por meio de um cabo USB;
+	3. Digite "adb devices" na linha de comando;
+	4. Aceite a solicitação no celular e rode o comando novamente.
+
+Se optar por um emulador:
+	Apenas ligue-o e execute o comando "adb devices"; ele já deve aparecer na lista de dispositivos.
+
+################################## Comandos ##################################
+
+Por meio do ADB, é possível controlar o Android pela linha de comando do computador, executando comandos diretamente no smartphone.
+alguns exemplos são:
+	adb install <apk> 	-> instala o apk diretamente no Android.
+	adb push <file> 	-> envia o arquivo para a memória do celular.
+	adb pull <file> 	-> pega algum arquivo do celular e envia para o computador.
+	adb root 		-> reinicia o serviço do adb em modo root. Útil se quiser iniciar uma shell no Android com root ativado (apenas se o dispositivo possuir essa funcionalidade).
+	adb shell 		-> abre uma shell diretamente no Android. Todos os comandos do Linux funcionam aqui, caso possua permissões de root.
+
+Na shell do Android, podemos destacar alguns comandos importantes importantes:
+
+ps -> lista os processos ativos
+logcat -> exibe os logs do sistema. Útil para tratamento de erros ou visualização de eventos do sistema.
+
