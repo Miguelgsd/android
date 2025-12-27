@@ -1,7 +1,7 @@
 O processo de hackear um aplicativo envolve descompilar, modificar seu código, compilar e assinar.
 
-Para isso, utlizamos o apktool, tanto para descompilar quanto para compilar. 
-Nesses testes, utlizarei o AndroGoat, que é um aplicativo vulnerável próprio para Pentesting. Veja o arquivo "Pentesting Apps" para instalar.
+Para isso, utilizamos o apktool, tanto para descompilar quanto para compilar. 
+Nesses testes, utilizarei o AndroGoat, que é um aplicativo vulnerável próprio para Pentesting. Veja o arquivo "Pentesting Apps" para instalar.
 
 Para iniciarmos os testes, precisamos entender a lógica por trás do aplicativo (para este exemplo, irei utilizar apenas a função de "Root detection". As resoluções dos demais desafios serão postadas em uma pasta separada).
 Temos a opção "crua", que seria analisar o bytecode em Smali. Smali é uma linguagem de montagem legível para humanos, usada para a representação do bytecode .dex de aplicativos. Por meio dela, é possível fazer engenharia reversa, modificação e depuração de aplicativos. Por ser uma linguagem de baixo nível, a análise direta pode ser um pouco complexa, então temos a opção de inspecionar o código em Java.
@@ -33,10 +33,10 @@ Tendo o APK em mãos, vamos descompilar:
 	Entre elas, existe a pasta "smali" ou "smali_classes2".
 
 Ao encontrar essas pastas, procure pela pasta "owasp"; ela é o nosso alvo.
-Vá acessando todas os diretórios até chegar em "/owasp/sat/agoat"
+Vá acessando todos os diretórios até chegar em "/owasp/sat/agoat"
 Abra com um editor de sua preferência. 
 Procure pelo arquivo "RootDetectionActivity.smali"
-O próximo passo agora é encontrar a estrutura que diz se "Device is rooted" ou "Device is not rooted". Para que sua busca seja mais fácil, use o mecanismo de busca do seu editor e procure por "Device".
+O próximo passo é encontrar a estrutura que diz se "Device is rooted" ou "Device is not rooted". Para que sua busca seja mais fácil, use o mecanismo de busca do seu editor e procure por "Device".
 
 Ao encontrar, observe o pedaço de código:
     
@@ -76,7 +76,7 @@ Ao encontrar, observe o pedaço de código:
 
     const-string v2, "Device is not rooted"
 
-Na primeira linha, "if-eqz v0, :cond_0" se trata de uma comparação. eqz = equal to zero (igual a zero). Ou seja, ele verifica se "v0" possui valor igual a 0. Caso isso seja verdadeiro, o compilador pula para o ":cond_0", que nos diz "Device is not rooted". Como queremos burlar a deteccção, é exatamente isso que vamos modificar.
+Na primeira linha, "if-eqz v0, :cond_0" se trata de uma comparação. eqz = equal to zero (igual a zero). Ou seja, ele verifica se "v0" possui valor igual a 0. Caso isso seja verdadeiro, o compilador pula para o ":cond_0", que nos diz "Device is not rooted". Como queremos burlar a detecção, é exatamente isso que vamos modificar.
 Lógica da detecção:
 	Função acima verifica se há permissões root -> armazena 0 ou 1 na variável v0
 	if-eqz compara se v0 recebeu 0 ou 1:
