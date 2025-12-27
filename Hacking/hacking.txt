@@ -1,0 +1,94 @@
+O processo de hackear um aplicativo envolve descompilar, modificar seu código, compilar e assinar.
+
+Para isso, utlizamos o apktool, tanto para descompilar quanto para compilar. 
+Nesses testes, utlizarei o AndroGoat, que é um aplicativo vulnerável próprio para Pentesting. Veja o arquivo "Pentesting Apps" para instalar.
+
+Para iniciarmos os testes, precisamos entender a lógica por trás do aplicativo (para este exemplo, irei utilizar apenas a função de "Root detection". As resoluções dos demais desafios serão postadas em uma pasta separada).
+Temos a opção "crua", que seria analisar o bytecode em Smali. Smali é uma linguagem de montagem legível para humanos, usada para a representação do bytecode .dex de aplicativos. Por meio dela, é possível fazer engenharia reversa, modificação e depuração de aplicativos. Por ser uma linguagem de baixo nível, a análise direta pode ser um pouco complexa, então temos a opção de inspecionar o código em Java.
+Para converter, utilizamos a ferramenta "dex2jar", que converte o bytecode em um arquivo Java.
+	d2j-dex2jar AndroGoat.apk
+	Isso irá gerar um arquivo chamado "AndroGoat-dex2jar.jar"; será nele que faremos a análise. 
+	Utilize o editor que preferir. Aqui, irei utilizar o jd-gui, que pode ser instalado facilmente pelo terminal.
+	Na pasta do APK do AndroGoat, inicie com "jd-gui" e abra a pasta. Com o editor aberto, procure por "owasp.sat.agoat" e logo verá os arquivos que iremos mexer.
+	Como o foco é burlar a detecção de root no app, vamos acessar o código "RootDetectionActivity.class."
+
+Analisando a função geral do código, vemos que ele verifica, de duas formas, se o dispositivo possui root:
+	isRooted(): verifica se o dispositivo possui pastas comuns em dispositivos rootados;
+	isRooted1(): verifica se é possivel executar comandos que precisam de permissão root, como "ls /data/data/", que é uma pasta protegida pelo sistema. Se for possível listar o conteúdo, então há permissão de root.
+
+O nosso ponto de interesse está neste fragmento:
+
+	if (paramRootDetectionActivity.isRooted()) {
+      paramBuilder.setMessage("Device is rooted");
+      Toast.makeText(paramRootDetectionActivity.getApplicationContext(), "Device is rooted", 1).show();
+    } else {
+      Toast.makeText(paramRootDetectionActivity.getApplicationContext(), "Device is not rooted", 1).show();
+      paramBuilder.setMessage("Device is not rooted");
+
+Perceba que se trata de uma estrutura condicional que dirá se o dispositivo passou por rooting. Pode ser bem mais fácil burlar a detecção se pudermos quebrar essa verificação de alguma forma. Agora que encontramos um ponto de partida, vamos ao código em Smali.
+Tendo o APK em mãos, vamos descompilar:
+	apktool d -r AndroGoat.apk
+	
+	Isso irá gerar uma pasta específica do AndroGoat, contendo diversas informações do app que podem ser exploradas.
+	Entre elas, existe a pasta "smali" ou "smali_classes2".
+
+Ao encontrar essas pastas, procure pela pasta "owasp"; ela é o nosso alvo.
+Vá acessando todas os diretórios até chegar em "/owasp/sat/agoat"
+Abra com um editor de sua preferência. 
+Procure pelo arquivo "RootDetectionActivity.smali"
+O próximo passo agora é encontrar a estrutura que diz se "Device is rooted" ou "Device is not rooted". Para que sua busca seja mais fácil, use o mecanismo de busca do seu editor e procure por "Device".
+
+Ao encontrar, observe o pedaço de código:
+    
+    if-eqz v0, :cond_0
+
+    .line 23
+
+    const-string v0, "Device is rooted"
+
+    move-object v2, v0
+
+    check-cast v2, Ljava/lang/CharSequence;
+
+    invoke-virtual {p1, v2}, Landroidx/appcompat/app/AlertDialog$Builder;->setMessage(Ljava/lang/CharSequence;)Landroidx/appcompat/app/AlertDialog$Builder;
+
+    .line 24
+
+    invoke-virtual {p0}, Lowasp/sat/agoat/RootDetectionActivity;->getApplicationContext()Landroid/content/Context;
+
+    move-result-object v2
+
+    check-cast v0, Ljava/lang/CharSequence;
+
+    invoke-static {v2, v0, v1}, Landroid/widget/Toast;->makeText(Landroid/content/Context;Ljava/lang/CharSequence;I)Landroid/widget/Toast;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Landroid/widget/Toast;->show()V
+
+    goto :goto_0
+
+    .line 28
+    :cond_0
+    invoke-virtual {p0}, Lowasp/sat/agoat/RootDetectionActivity;->getApplicationContext()Landroid/content/Context;
+
+    move-result-object v0
+
+    const-string v2, "Device is not rooted"
+
+Na primeira linha, "if-eqz v0, :cond_0" se trata de uma comparação. eqz = equal to zero (igual a zero). Ou seja, ele verifica se "v0" possui valor igual a 0. Caso isso seja verdadeiro, o compilador pula para o ":cond_0", que nos diz "Device is not rooted". Como queremos burlar a deteccção, é exatamente isso que vamos modificar.
+Lógica da detecção:
+	Função acima verifica se há permissões root -> armazena 0 ou 1 na variável v0
+	if-eqz compara se v0 recebeu 0 ou 1:
+	Se recebeu 0: "Device is not rooted"
+	Se não: "Device is rooted".
+
+Para burlar, apenas modificamos o if-eqz:
+	"if-eqz v0, :cond_0" -> "goto :cond_0" 
+	O "goto" não faz nenhuma verificação e pula diretamente para o :cond_0.
+
+Salve o arquivo e compile o APK modificado:
+	  apktool b <pasta do APK modificado> -o <nome do apk final>
+Exemplo: apktool b AndroGoat -o Andro2.apk
+
+O último passo é assinar o APK. Caso você já saiba, faça você mesmo. Se não, acesse o arquivo "Assinaturas", deste repositório.
