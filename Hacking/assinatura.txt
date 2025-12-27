@@ -1,0 +1,12 @@
+Para que seja possível instalar qualquer aplicativo no Android, é necessário que ele possua alguma assinatura, por questões de segurança.
+Quando se modifica um APK, sua assinatura original é quebrada, sendo preciso assinar novamente.
+Para isso, gere sua assinatura com o seguinte comando:
+
+	 keytool -genkey -keystore <nome do arquivo>.jks -keyalg RSA -keysize <tamanho> -validity <dias> -alias <nome da chave>
+Exemplo: keytool -genkey -keystore mykeystore.jks -keyalg RSA -keysize 2048 -validity 10000 -alias mykey
+
+Agora, precisamos assinar o APK. Para isso, use o "jarsigner":
+	 jarsigner -sigalg SHA1withRSA -digestalg SHA1 -keystore <nome do arquivo>.jks <nome do APK já compilado> <nome da chave>
+Exemplo: jarsigner -sigalg SHA1withRSA -digestalg SHA1 -keystore mykeystore.jks androgoat2.apk mykey
+
+Assim, seu APK modificado já estará assinado e pronto para ser instalado.	
