@@ -1,0 +1,7 @@
+Caso seja necessário extrair algum APK de um dispositivo, execute esses comandos:
+adb shell 		-> inicia uma shell no Android;
+pm list packages 	-> lista o nome dos pacotes instalados;
+pm path <pacote> 	-> lista o caminho para o APK daquele pacote. Copie;
+exit 			-> sai da shell
+adb pull <caminho do APK> <caminho da pasta local> ->  Copia o APK do dispositivo para a outra máquina (computador, notebook, etc.).
+
